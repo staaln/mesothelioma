@@ -1,3 +1,4 @@
+#set the working directory
 setwd("/Users/hegemb/mesothelioma/")
 data.s1<-read.table("quant_S1.sf.txt",header=TRUE)
 data.s2<-read.table("quant_S2.sf.txt",header=TRUE)
@@ -25,6 +26,7 @@ biocLite("biomaRt")
 library(biomaRt)
 ensembl = useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
 #K<-length(ix)
+#This is a bit slow. Should be improved
 K<-5
 R<-NULL
 for (k in 1:K){

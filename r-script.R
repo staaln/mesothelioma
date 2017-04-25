@@ -1,6 +1,4 @@
-#set the working directory
 setwd("/Users/hegemb/mesothelioma/")
-source("http://bioconductor.org/biocLite.R")
 data.s1<-read.table("quant_S1.sf.txt",header=TRUE)
 data.s2<-read.table("quant_S2.sf.txt",header=TRUE)
 data.s3<-read.table("quant_S3.sf.txt",header=TRUE)
@@ -12,8 +10,6 @@ countData<-round(countData)
 colData<-matrix(c("after",rep("before",3)),ncol=1)
 colnames(colData)<-"condition"
 rownames(colData)<-colnames(countData)
-#Install DESeq2 the first time
-#biocLite(DESeq2)
 library(DESeq2)
 dds <- DESeqDataSetFromMatrix(countData = countData,colData=colData,design=~condition)
 dds <- DESeq(dds)
@@ -22,22 +18,14 @@ ix<-which(res$padj<0.1)
 o<-order(res$padj)
 res2<-res[o,]
 #top20
-#v<-match(rownames(res2)[1:20],rownames(res))
-#countData[v,]
-#Install biomaRt the first time
+v<-match(rownames(res2)[1:20],rownames(res))
+countData[v,]
+source("http://bioconductor.org/biocLite.R")
 #biocLite("biomaRt")
 library(biomaRt)
 ensembl = useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
-#This is a bit slow. Should be improved
-#K<-length(ix) #printing for the ones with fdr<0.1
-K<-5
-R<-NULL
-for (k in 1:K){
-	print(k)
-	results <- getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id", "external_gene_name"),
-                 filters = "ensembl_transcript_id", values=substr(row.names(res2)[k],1,15),mart = ensembl)
-	R<-rbind(R,results)    
-}             
-res3<-cbind(R,res2[1:K,],countData[o[1:K],])
-#printing to a tab-delimitted file (can be opened in Excel)
+mappings<-getBM(attributes=c('ensembl_transcript_id','ensembl_gene_id','external_gene_name'),mart=ensembl)
+m<-match(substr(row.names(res2),1,15),mappings[,1])
+res3<-cbind(mappings[m,],res2,countData[o,])
+row.names(res3)<-row.names(res2)
 write.table(res3,file="deseq-res.txt",sep="\t",row.names=TRUE,col.names=TRUE,quote=FALSE)

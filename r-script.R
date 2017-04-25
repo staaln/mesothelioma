@@ -10,6 +10,7 @@ countData<-round(countData)
 colData<-matrix(c("after",rep("before",3)),ncol=1)
 colnames(colData)<-"condition"
 rownames(colData)<-colnames(countData)
+#biocLite(DESeq2)
 library(DESeq2)
 dds <- DESeqDataSetFromMatrix(countData = countData,colData=colData,design=~condition)
 dds <- DESeq(dds)
@@ -18,9 +19,8 @@ ix<-which(res$padj<0.1)
 o<-order(res$padj)
 res2<-res[o,]
 #top20
-v<-match(rownames(res2)[1:20],rownames(res))
-countData[v,]
-source("http://bioconductor.org/biocLite.R")
+#v<-match(rownames(res2)[1:20],rownames(res))
+#countData[v,]
 #biocLite("biomaRt")
 library(biomaRt)
 ensembl = useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
